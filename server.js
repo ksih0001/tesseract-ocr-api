@@ -7,21 +7,21 @@ const app = express();
 const upload = multer({ dest: "uploads/" });
 
 app.post("/ocr", upload.single("image"), async (req, res) => {
-    try {
-        const worker = await createWorker();
-        await worker.loadLanguage("eng");
-        await worker.initialize("eng");
-
-        const result = await worker.recognize(req.file.path);
-        await worker.terminate();
-        fs.unlinkSync(req.file.path);
-
-        res.json({
-            text: result.data.text
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
+  try {
+    const worker = await createWorker();
+    await worker.loadLanguage("eng");
+    await worker.initialize("eng");
+    const result = await worker.recognize(req.file.path);
+    await worker.terminate();
+    fs.unlinkSync(req.file.path);
+    res.json({ text: result.data.text });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.listen(3000, () => console.log("OCR API running on port 3000"));
+app.get("/", (req, res) => res.send("OCR API running"));
+
+app.listen(process.env.PORT || 3000, () =>
+  console.log("Server running")
+);
